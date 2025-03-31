@@ -1,7 +1,7 @@
 const API_LINK = "https://deckofcardsapi.com/api/deck/";
 
 export async function createDeck() {
-    const res = await fetch(`${API_LINK}new/shuffle/?deck_count=1`);
+    const res = await fetch(`${API_LINK}new/shuffle/?deck_count=6`);
     return res.json();
 }
 
