@@ -5,6 +5,7 @@
     let deckId = "";
     let playerHand = [];
     let dealerHand = [];
+    let dealerRevealed = false;
     
     onMount(async () => {
         const deck = await createDeck();
@@ -20,6 +21,10 @@
     async function hit() {
         const newCard = await drawCards(deckId, 1);
         playerHand = [...playerHand, ...newCard.cards];
+    }
+
+    async function stand() {
+        dealerRevealed = true;
     }
 
     function calculateHandValue(hand) {
@@ -50,31 +55,31 @@
 
 </script>
 
-<h1>Blackjack</h1>
+<div class="min-h-screen bg-[rgba(20,20,20,0.9)] text-white">
+    <h1 class="text-3xl font-bold text-center py-4">Blackjack</h1>
 
-<h2>Croupier</h2>
-<div class="hand">
-    {#each dealerHand as card, i}
-        {#if i === 0}
-            <img src={card.image} alt={card.code} />
-        {:else}
-            <img src="https://deckofcardsapi.com/static/img/back.png" alt="Hidden Card" />
-        {/if}
-    {/each}
+    <h2 class="text-xl font-bold text-center mb-2">Croupier</h2>
+    <div class="flex justify-center relative">
+        {#each dealerHand as card, i}
+            {#if i===0 && !dealerRevealed}
+                <img class="w-30" src="https://deckofcardsapi.com/static/img/back.png" alt="Hidden Card" />
+            {:else}
+                <img class="w-30" src={card.image} alt={card.code} />
+            {/if}
+        {/each}
+    </div>
+    <p class="text-center mt-2">Valeur totale : {dealerRevealed ? calculateHandValue(dealerHand) : "?"}</p>
 
-    <p>Valeur totale : {calculateHandValue(dealerHand)}</p>
-</div>
+    <h2 class="text-xl font-bold text-center mt-6 mb-2">Joueur</h2>
+    <div class="flex justify-center">
+        {#each playerHand as card}
+            <img class="w-30" src={card.image} alt={card.code} />
+        {/each}
+    </div>
+    <p class="text-center mt-2">Valeur totale : {calculateHandValue(playerHand)}</p>
 
-<h2>Joueur</h2>
-<div class="hand">
-    {#each playerHand as card}
-        <img class="card" src={card.image} alt={card.code} />
-    {/each}
-    
-    <p>Valeur totale : {calculateHandValue(playerHand)}</p>
-
-    <div class="controls">
-        <button on:click={hit}>Tirer une carte</button>
-        <button on:click={stand}>Rester</button>
+    <div class="controls mt-6 flex justify-center space-x-4">
+        <button class="px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600" on:click={hit}>Tirer une carte</button>
+        <button class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600" on:click={stand}>Rester</button>
     </div>
 </div>
