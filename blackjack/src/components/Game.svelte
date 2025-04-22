@@ -5,6 +5,7 @@
     let deckId = "";
     let playerHand = [];
     let dealerHand = [];
+
     let result = "";
     let showDealerCards = false;
 
@@ -66,6 +67,10 @@
         } else {
             result = "Égalité !";
         }
+    }
+
+    async function stand() {
+        dealerRevealed = true;
     }
 
     function calculateHandValue(hand) {
