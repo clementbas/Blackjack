@@ -25,6 +25,25 @@
             result = "Blackjack ! Le joueur gagne immédiatement 🃏🎉";
         }
     });
+    async function newGame() {
+        const deck = await createDeck();  // Create a new deck
+        deckId = deck.deck_id;  // Set the deck ID
+
+        const playerCards = await drawCards(deckId, 2);  // Deal 2 cards to player
+        const dealerCards = await drawCards(deckId, 2);  // Deal 2 cards to dealer
+
+        // Reset the game state
+        playerHand = playerCards.cards;
+        dealerHand = dealerCards.cards;
+        result = "";  // Clear the result message
+        showDealerCards = false;  // Hide dealer's second card
+
+        // Check for Blackjack after the new deal
+        if (calculateHandValue(playerHand) === 21) {
+            showDealerCards = true;
+            result = "Blackjack ! Le joueur gagne immédiatement 🃏🎉";
+        }
+    }
 
 
     async function hit() {
@@ -69,9 +88,6 @@
         }
     }
 
-    async function stand() {
-        dealerRevealed = true;
-    }
 
     function calculateHandValue(hand) {
         let total = 0;
@@ -93,6 +109,7 @@
 
         return total;
     }
+
 </script>
 
 <h1 class="text-4xl font-bold text-center my-6">Blackjack</h1>
@@ -139,5 +156,13 @@
 </div>
 
 {#if result}
-    <h3 class="text-xl font-bold text-center text-red-600">{result}</h3>
+    <div class="text-center mt-6 space-y-4">
+        <h3 class="text-2xl font-bold text-red-600">{result}</h3>
+        <button
+            class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg shadow transition duration-200"
+            on:click={newGame}
+        >
+            Nouvelle Partie
+        </button>
+    </div>
 {/if}
