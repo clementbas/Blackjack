@@ -14,6 +14,24 @@
     }
   </script>
   
+  <!-- Navbar -->
+<nav class="w-full bg-gray-800 px-6 py-4 flex items-center justify-between shadow ">
+    <div class="flex items-center gap-4">
+      <a
+        href="/"
+        class="text-blue-300 hover:text-blue-500 font-semibold px-3 py-1 rounded transition"
+      >
+        Home
+      </a>
+      <a
+        href="/rules"
+        class="text-blue-300 hover:text-blue-500 font-semibold px-3 py-1 rounded transition"
+      >
+        Rules
+      </a>
+    </div>
+  </nav>
+
   <div class="min-h-screen flex items-center justify-center bg-gray-900">
     <form
       class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-sm"
@@ -66,6 +84,13 @@
       >
         Sign Up
       </button>
+      <a
+    href="/login"
+    class="text-blue-400 hover:underline text-base mt-2"
+  >
+    Already have an account? Sign In
+  </a>
     </form>
+    
   </div>
   
