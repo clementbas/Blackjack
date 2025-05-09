@@ -8,6 +8,7 @@
 
     let result = "";
     let showDealerCards = false;
+    let gameOver = false;
 
     onMount(async () => {
         const deck = await createDeck();
@@ -23,6 +24,7 @@
         if (calculateHandValue(playerHand) === 21) {
             showDealerCards = true;
             result = "Blackjack ! Le joueur gagne immédiatement 🃏🎉";
+            gameOver = true; 
         }
     });
     async function newGame() {
@@ -37,16 +39,19 @@
         dealerHand = dealerCards.cards;
         result = "";  // Clear the result message
         showDealerCards = false;  // Hide dealer's second card
+        gameOver = false; 
 
         // Check for Blackjack after the new deal
         if (calculateHandValue(playerHand) === 21) {
             showDealerCards = true;
             result = "Blackjack ! Le joueur gagne immédiatement 🃏🎉";
+            gameOver = true; 
         }
     }
 
 
     async function hit() {
+        if (gameOver) return;
         const newCard = await drawCards(deckId, 1);
         playerHand = [...playerHand, ...newCard.cards];
 
@@ -58,6 +63,7 @@
     }
 
     async function stand() {
+        if (gameOver) return;
         showDealerCards = true;
 
         // Dealer draws cards until at least 17
