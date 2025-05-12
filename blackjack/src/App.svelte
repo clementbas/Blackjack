@@ -36,14 +36,6 @@ const routes = [
   }
 ];</script>
   
-  <!-- <nav>
-    <a use:route href="/">Home</a>
-    <a use:route href="/game">Game</a>
-    <a use:route href="/rules">Rules</a>
-    <a use:route href="/profile">Profile</a>
-    <a use:route href="/login">Login</a>
-    <a use:route href="/sign-in">Sign-in</a>
-  </nav> -->
   
   <Router {routes}></Router>
   

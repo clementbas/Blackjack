@@ -1,18 +1,44 @@
 <script>
-    let username = "";
-    let email = "";
-    let password = "";
-    let confirmPassword = "";
-  
-    function signup() {
-      if (password !== confirmPassword) {
-        alert("Passwords do not match!");
+  let username = "";
+  let email = "";
+  let password = "";
+  let confirmPassword = "";
+  let errorMessage = "";
+  let successMessage = "";
+
+  async function signup() {
+    errorMessage = "";
+    successMessage = "";
+
+    if (password !== confirmPassword) {
+      errorMessage = "Passwords do not match!";
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:5000/users/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, email, password })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        errorMessage = data.error || "Registration failed.";
         return;
       }
-      // Replace with your registration logic
-      alert(`Signing up as ${username} (${email}) (mockup)`);
+
+      successMessage = "Registration successful! You can now log in.";
+      // Optionally, redirect after a delay:
+      // setTimeout(() => window.location.href = "/login", 1500);
+    } catch (err) {
+      errorMessage = "Network error. Please try again.";
+      console.error(err);
     }
-  </script>
+  }
+</script>
+
   
   <!-- Navbar -->
 <nav class="w-full bg-gray-800 px-6 py-4 flex items-center justify-between shadow ">
@@ -33,6 +59,16 @@
   </nav>
 
   <div class="min-h-screen flex items-center justify-center bg-gray-900">
+    {#if errorMessage}
+        <div class="bg-red-700 text-white p-2 mb-4 rounded text-center">
+          {errorMessage}
+        </div>
+      {/if}
+      {#if successMessage}
+        <div class="bg-green-700 text-white p-2 mb-4 rounded text-center">
+          {successMessage}
+        </div>
+      {/if}
     <form
       class="bg-gray-800 p-8 rounded-lg shadow-lg w-full max-w-sm"
       on:submit|preventDefault={signup}
