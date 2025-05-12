@@ -9,9 +9,12 @@ datasource db {
 }
 
 model User {
-  id       Int    @id @default(autoincrement())
-  username String @unique
-  email    String @unique
-  password String
-  // Add stats fields as needed
+  id         Int     @id @default(autoincrement())
+  username   String  @unique
+  email      String  @unique
+  password   String
+  profilePic String? // URL to the uploaded image; optional
+  wins       Int     @default(0)
+  losses     Int     @default(0)
+  draws      Int     @default(0)
 }

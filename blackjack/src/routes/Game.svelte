@@ -9,71 +9,102 @@
     let result = "";
     let showDealerCards = false;
     let gameOver = false;
+    let errorMessage = "";
 
-    onMount(async () => {
+    async function handleAsync(fn) {
+      try {
+        errorMessage = "";
+        return await fn();
+      } catch (err) {
+        console.error(err);
+        errorMessage = "Something went wrong. Please try again.";
+        throw err;
+      }
+    }
+
+  onMount(async () => {
+    try {
+      await handleAsync(async () => {
         const deck = await createDeck();
+        if (!deck?.deck_id) throw new Error("Failed to create deck");
         deckId = deck.deck_id;
 
-        const playerCards = await drawCards(deckId, 2);
-        const dealerCards = await drawCards(deckId, 2);
+        const [playerCards, dealerCards] = await Promise.all([
+          drawCards(deckId, 2),
+          drawCards(deckId, 2)
+        ]);
+
+        if (!playerCards?.cards || !dealerCards?.cards) {
+          throw new Error("Failed to deal initial cards");
+        }
 
         playerHand = playerCards.cards;
         dealerHand = dealerCards.cards;
 
-        // Check for initial Blackjack
-        if (calculateHandValue(playerHand) === 21) {
-            showDealerCards = true;
-            result = "Blackjack! You win 🃏🎉";
-            gameOver = true; 
-        }
-    });
+        checkInitialBlackjack();
+      });
+    } catch {
+     
+    }
+  });
+
     async function newGame() {
-        const deck = await createDeck();  // Create a new deck
-        deckId = deck.deck_id;  // Set the deck ID
+    await handleAsync(async () => {
+      const deck = await createDeck();
+      if (!deck?.deck_id) throw new Error("Failed to create new deck");
+      deckId = deck.deck_id;
 
-        const playerCards = await drawCards(deckId, 2);  // Deal 2 cards to player
-        const dealerCards = await drawCards(deckId, 2);  // Deal 2 cards to dealer
+      const [playerCards, dealerCards] = await Promise.all([
+        drawCards(deckId, 2),
+        drawCards(deckId, 2)
+      ]);
 
-        // Reset the game state
-        playerHand = playerCards.cards;
-        dealerHand = dealerCards.cards;
-        result = "";  // Clear the result message
-        showDealerCards = false;  // Hide dealer's second card
-        gameOver = false; 
+      if (!playerCards?.cards || !dealerCards?.cards) {
+        throw new Error("Failed to deal new cards");
+      }
 
-        // Check for Blackjack after the new deal
-        if (calculateHandValue(playerHand) === 21) {
-            showDealerCards = true;
-            result = "Blackjack! You win 🃏🎉";
-            gameOver = true; 
-        }
-    }
+      resetGameState(playerCards.cards, dealerCards.cards);
+      checkInitialBlackjack();
+    });
+  }
 
 
-    async function hit() {
-        if (gameOver) return;
-        const newCard = await drawCards(deckId, 1);
-        playerHand = [...playerHand, ...newCard.cards];
-
-        const playerTotal = calculateHandValue(playerHand);
-        if (playerTotal > 21) {
-            showDealerCards = true; // Reveal dealer's cards too
-            winner(); // Player busted
-        }
-    }
-
-    async function stand() {
-        if (gameOver) return;
+  async function hit() {
+    if (gameOver) return;
+    
+    await handleAsync(async () => {
+      const newCard = await drawCards(deckId, 1);
+      if (!newCard?.cards) throw new Error("Failed to draw card");
+      
+      playerHand = [...playerHand, ...newCard.cards];
+      const playerTotal = calculateHandValue(playerHand);
+      
+      if (playerTotal > 21) {
         showDealerCards = true;
+        winner();
+      }
+    });
+  }
 
-        // Dealer draws cards until at least 17
-        while (calculateHandValue(dealerHand) < 17) {
-            const newCard = await drawCards(deckId, 1);
-            dealerHand = [...dealerHand, ...newCard.cards];
-        }
+  async function stand() {
+    if (gameOver) return;
 
-        winner(); // Check who wins
-    }
+    await handleAsync(async () => {
+      showDealerCards = true;
+      let dealerTotal = calculateHandValue(dealerHand);
+
+      while (dealerTotal < 17) {
+        const newCard = await drawCards(deckId, 1);
+        if (!newCard?.cards) throw new Error("Failed to draw dealer card");
+        
+        dealerHand = [...dealerHand, ...newCard.cards];
+        dealerTotal = calculateHandValue(dealerHand);
+      }
+
+      winner();
+    });
+  }
+
 
     function winner() {
         const playerTotal = calculateHandValue(playerHand);
@@ -116,6 +147,22 @@
 
         return total;
     }
+
+    function checkInitialBlackjack() {
+    if (calculateHandValue(playerHand) === 21) {
+      showDealerCards = true;
+      result = "Blackjack! You win 🃏🎉";
+      gameOver = true;
+    }
+  }
+
+  function resetGameState(playerCards, dealerCards) {
+    playerHand = playerCards;
+    dealerHand = dealerCards;
+    result = "";
+    showDealerCards = false;
+    gameOver = false;
+  }
 
 </script>
 
@@ -216,6 +263,26 @@
           </div>
         </div>
       {/if}
+      {#if errorMessage}
+        <div 
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+          on:click={() => errorMessage = ""}
+        >
+          <div 
+            class="bg-red-800 text-white rounded-lg p-6 shadow-lg text-center min-w-[250px]"
+            on:click|stopPropagation
+          >
+            <div>{errorMessage}</div>
+            <button
+              class="mt-4 bg-white text-red-800 px-4 py-2 rounded hover:bg-red-100"
+              on:click={() => errorMessage = ""}
+            >
+              Dismiss
+            </button>
+          </div>
+        </div>
+      {/if}
+
 
     </div>
   </div>
