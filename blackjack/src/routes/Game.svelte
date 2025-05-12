@@ -23,7 +23,7 @@
         // Check for initial Blackjack
         if (calculateHandValue(playerHand) === 21) {
             showDealerCards = true;
-            result = "Blackjack! Player wins 🃏🎉";
+            result = "Blackjack! You win 🃏🎉";
             gameOver = true; 
         }
     });
@@ -44,7 +44,7 @@
         // Check for Blackjack after the new deal
         if (calculateHandValue(playerHand) === 21) {
             showDealerCards = true;
-            result = "Blackjack! Player wins 🃏🎉";
+            result = "Blackjack! You win 🃏🎉";
             gameOver = true; 
         }
     }
@@ -79,18 +79,19 @@
         const playerTotal = calculateHandValue(playerHand);
         const dealerTotal = calculateHandValue(dealerHand);
 
-        if (playerTotal === 21 && playerHand.length === 2) {
-            result = "Blackjack! Player wins 🃏🎉";
+        
+        if (playerTotal === 21 ) {
+            result = "Blackjack! You win 🃏🎉";
         } else if (playerTotal > 21) {
-            result = "Dealer wins! The player has passed 21.";
+            result = "💥 Bust! Dealer wins. You went over 21.";
         } else if (dealerTotal > 21) {
-            result = "Player wins! The dealer has passed 21.";
+            result = "🎉 Dealer busts! You win!";
         } else if (playerTotal > dealerTotal) {
-            result = "Player wins !";
+            result = "🏆 You win!";
         } else if (dealerTotal > playerTotal) {
-            result = "Dealer wins !";
+            result = "😞 Dealer wins.";
         } else {
-            result = "Draws !";
+            result = "🤝 It's a draw!";
         }
     }
 
@@ -194,16 +195,28 @@
       </div>
   
       {#if result}
-        <div class="text-center mt-6 space-y-4">
-          <h3 class="text-2xl font-bold text-red-500">{result}</h3>
-          <button
-            class="bg-gray-700 border border-blue-600 text-blue-200 hover:bg-blue-700 hover:text-white px-6 py-2 rounded-lg shadow transition duration-200"
-            on:click={newGame}
+        <div
+          class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-70"
+          on:click={() => result = null}
+        >
+          <div
+            class="bg-gray-900 rounded-lg p-8 shadow-2xl text-center space-y-4 w-[340px] min-h-[180px] flex flex-col justify-center items-center"
+            on:click|stopPropagation
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="modal-title"
           >
-            New Game
-          </button>
+            <h3 id="modal-title" class="text-2xl font-semibold text-gray-100 break-words">{result}</h3>
+            <button
+              class="bg-gray-800 border border-gray-700 text-gray-200 hover:bg-gray-700 hover:text-white px-6 py-2 rounded-lg shadow transition duration-200 mt-4"
+              on:click={newGame}
+            >
+              New Game
+            </button>
+          </div>
         </div>
       {/if}
+
     </div>
   </div>
   </main>
